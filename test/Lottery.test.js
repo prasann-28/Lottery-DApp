@@ -1,5 +1,5 @@
 const Lottery = artifacts.require('Lottery')
-const assert = require('assert')
+//const assert = require('assert')
 
 contract("Lottery", () => {
    let lottery;
@@ -75,8 +75,11 @@ contract("Lottery", () => {
             await lottery.pickWinner({from: accounts[0]});
             const finalBalance = await web3.eth.getBalance(accounts[0]);
             const diff = finalBalance - initialBalance;
-           // console.log(diff);
+            const players = await lottery.getPlayers();
+            
+            assert.equal(0, players);
             assert(diff > web3.utils.toWei('1.8', 'ether'));
+        
 
         })
     
