@@ -6,6 +6,7 @@ import Lottery from './abis/Lottery.json'
 //import Navbar from './Navbar'
 //import Main from './Main'
 import './App.css'
+//const web3 = window.web3;
 
 class App extends Component {
 
@@ -32,8 +33,9 @@ class App extends Component {
       let manager = await lottery.methods.manager().call();
       let players = await lottery.methods.getPlayers().call({from: this.state.account});
       let poolBalance = await web3.eth.getBalance(lottery.options.address);
-    
-      this.setState({manager, players, poolBalance: poolBalance.toString()})
+      let Balance = web3.utils.fromWei(poolBalance.toString(), 'ether')
+      this.setState({manager, players, Balance})
+      this.setState({})
   } else {
     window.alert('Not deployed to network');
   }
@@ -65,6 +67,7 @@ class App extends Component {
       loading: true,
       account: '0x0',
       value: '',
+      winner: ''
       
 
     }
@@ -83,14 +86,16 @@ class App extends Component {
 
   onClick = async ()=> {
     const web3 = window.web3;
-    const networkId = await web3.eth.net.getId();
+    //const networkId = await web3.eth.net.getId();
     
     
     //Loads Lottery contract
-    const lotteryData = Lottery.networks[networkId];
-    const lottery = new web3.eth.Contract(Lottery.abi, lotteryData.address);
-    const accounts = await web3.eth.getAccounts();
-    await lottery.methods.pickWinner().call({from: accounts[0]});
+    //const lotteryData = Lottery.networks[networkId];
+    //const lottery = await Lottery.deployed();
+    //const accounts = await web3.eth.getAccounts();
+    await this.state.lottery.methods.pickWinner().send({from: this.state.account});
+    this.setState({winner: await this.state.lottery.methods.winner().call()})
+
 
   }
   
@@ -100,7 +105,7 @@ class App extends Component {
       <div>
         <h2>Lottery contract </h2>
         <p>The manager is {this.state.manager}</p>
-    <p>The pool of lottery is {this.state.poolBalance} ether!
+    <p>The pool of lottery is {this.state.Balance} ether!
     this account is {this.state.account}</p>
         <hr />
 
@@ -117,6 +122,8 @@ class App extends Component {
     <hr />
     <h4>Ready to pick a winner</h4>
       <button onClick={this.onClick}>Pick a winner</button> 
+      <h1>{this.state.winner}</h1>
+
       </div>
     );
   }
